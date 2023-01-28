@@ -23,6 +23,7 @@ from builtins import str
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Any, DefaultDict, Dict, Iterator, List, Optional, Set, Tuple, Union
+from nio.events.to_device import ToDeviceCallEvent
 
 import olm
 from cachetools import LRUCache
@@ -1289,6 +1290,9 @@ class Olm:
 
         elif payload["type"] == "m.dummy":
             return DummyEvent.from_dict(payload, sender, sender_key)
+        
+        elif payload["type"].startswith("m.call"):
+            return ToDeviceCallEvent.parse_event(payload, sender, sender_key)
 
         else:
             logger.warn(f"Received unsupported Olm event of type {payload['type']}")
