@@ -585,6 +585,7 @@ class ToDeviceCallCandidatesEvent(ToDeviceCallEvent):
         content = event_dict.get("content", {})
         return cls(
             event_dict,
+            event_dict["sender"],
             content["call_id"],
             content["party_id"],
             content["version"],
@@ -622,6 +623,7 @@ class ToDeviceCallInviteEvent(ToDeviceCallEvent):
         content = event_dict.get("content", {})
         return cls(
             event_dict,
+            event_dict["sender"],
             content["call_id"],
             content["party_id"],
             content["version"],
@@ -651,6 +653,7 @@ class ToDeviceCallAnswerEvent(ToDeviceCallEvent):
         content = event_dict.get("content", {})
         return cls(
             event_dict,
+            event_dict["sender"],
             content["call_id"],
             content["party_id"],
             content["version"],
@@ -674,6 +677,7 @@ class ToDeviceCallHangupEvent(ToDeviceCallEvent):
         content = event_dict.get("content", {})
         return cls(
             event_dict,
+            event_dict["sender"],
             content["call_id"],
             content["party_id"],
             content["version"],
