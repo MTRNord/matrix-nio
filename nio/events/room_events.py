@@ -227,7 +227,7 @@ class MSC3401CallEvent(Event):
     call_id: str = field()
     intent: str = field()
     type: str = field()
-    ptt: bool = field()
+    io_element_ptt: bool = field()
 
     @classmethod
     def from_dict(cls, event_dict):
