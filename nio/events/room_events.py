@@ -224,7 +224,6 @@ class Event:
 class MSC3401CallEvent(Event):
     """MSC3401 Call Event"""
 
-    call_id: str = field()
     intent: str = field()
     type: str = field()
     ptt: bool = field()
@@ -237,9 +236,9 @@ class MSC3401CallEvent(Event):
         type = content["m.type"]
         return cls(
             event_dict,
-            ptt,
             intent,
             type,
+            ptt,
         )
 
 
