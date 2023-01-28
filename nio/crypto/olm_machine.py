@@ -1293,6 +1293,7 @@ class Olm:
         
         elif payload["type"].startswith("m.call"):
             payload["sender"] = sender
+            logger.info(f"{payload}")
             return ToDeviceEvent.parse_event(payload)
 
         else:
