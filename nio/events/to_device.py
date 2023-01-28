@@ -566,7 +566,7 @@ class ToDeviceCallEvent(ToDeviceEvent):
 
 
 @dataclass
-class ToDeviceCallCandidatesEvent(CallEvent):
+class ToDeviceCallCandidatesEvent(ToDeviceCallEvent):
     """Call event holding additional VoIP ICE candidates.
 
     This event is sent by callers after sending an invite and by the callee
@@ -593,7 +593,7 @@ class ToDeviceCallCandidatesEvent(CallEvent):
 
 
 @dataclass
-class ToDeviceCallInviteEvent(CallEvent):
+class ToDeviceCallInviteEvent(ToDeviceCallEvent):
     """Event representing an invitation to a VoIP call.
 
     This event is sent by a caller when they wish to establish a call.
@@ -631,7 +631,7 @@ class ToDeviceCallInviteEvent(CallEvent):
 
 
 @dataclass
-class ToDeviceCallAnswerEvent(CallEvent):
+class ToDeviceCallAnswerEvent(ToDeviceCallEvent):
     """Event representing the answer to a VoIP call.
 
     This event is sent by the callee when they wish to answer the call.
@@ -659,7 +659,7 @@ class ToDeviceCallAnswerEvent(CallEvent):
 
 
 @dataclass
-class ToDeviceCallHangupEvent(CallEvent):
+class ToDeviceCallHangupEvent(ToDeviceCallEvent):
     """An event representing the end of a VoIP call.
 
     Sent by either party to signal their termination of the call. This can be
