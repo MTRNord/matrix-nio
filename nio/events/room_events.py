@@ -227,14 +227,13 @@ class MSC3401CallEvent(Event):
     call_id: str = field()
     intent: str = field()
     type: str = field()
-    io_element_ptt: bool = field()
 
     @classmethod
     def from_dict(cls, event_dict):
         content = event_dict.get("content", {})
         return cls(
             event_dict,
-            content["io.element.ptt"],
+            #content["io.element.ptt"],
             content["m.intent"],
             content["m.type"],
         )
