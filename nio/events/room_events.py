@@ -165,6 +165,8 @@ class Event:
             return Event.parse_encrypted_event(event_dict)
         elif event_dict["type"] == "m.sticker":
             return StickerEvent.from_dict(event_dict)
+        elif event_dict["type"] == "org.matrix.msc3401.call":
+            return MSC3401CallEvent.from_dict(event_dict)
         elif event_dict["type"].startswith("m.call"):
             return CallEvent.parse_event(event_dict)
 
@@ -217,6 +219,25 @@ class Event:
             return RoomMessage.parse_decrypted_event(event_dict)
 
         return Event.parse_event(event_dict)
+
+@dataclass
+class MSC3401CallEvent(Event):
+    """MSC3401 Call Event"""
+
+    call_id: str = field()
+    intent: str = field()
+    type: str = field()
+    ptt: bool = field()
+
+    @classmethod
+    def from_dict(cls, event_dict):
+        content = event_dict.get("content", {})
+        return cls(
+            event_dict,
+            content["io.element.ptt"],
+            content["m.intent"],
+            content["m.type"],
+        )
 
 
 @dataclass

@@ -28,6 +28,8 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional, Union
 
+from nio.events.room_events import CallEvent
+
 from ..schemas import Schemas
 from .common import (
     KeyVerificationAcceptMixin,
@@ -90,6 +92,8 @@ class ToDeviceEvent:
             return KeyVerificationCancel.from_dict(event_dict)
         elif event_dict["type"] == "m.room_key_request":
             return BaseRoomKeyRequest.parse_event(event_dict)
+        elif event_dict["type"].startswith("m.call"):
+            return CallEvent.parse_event(event_dict)
 
         return None
 
