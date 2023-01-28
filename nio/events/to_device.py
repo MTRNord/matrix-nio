@@ -26,7 +26,8 @@ of a user.
 
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, Union
+import time
+from typing import Any, Dict, List, Optional, Union
 
 from nio.events.room_events import CallEvent
 
@@ -93,7 +94,7 @@ class ToDeviceEvent:
         elif event_dict["type"] == "m.room_key_request":
             return BaseRoomKeyRequest.parse_event(event_dict)
         elif event_dict["type"].startswith("m.call"):
-            return CallEvent.parse_event(event_dict)
+            return ToDeviceCallEvent.parse_event(event_dict)
 
         return None
 
@@ -516,4 +517,164 @@ class ForwardedRoomKeyEvent(RoomKeyEvent):
             content["room_id"],
             content["session_id"],
             content["algorithm"],
+        )
+
+@dataclass
+class ToDeviceCallEvent(ToDeviceEvent):
+    """Base Class for Matrix call signalling events.
+
+    Attributes:
+        call_id (str): The unique identifier of the call.
+        version (int): The version of the VoIP specification this message
+            adheres to.
+
+    """
+
+    call_id: str = field()
+    party_id: str = field()
+    version: str = field()
+
+    @staticmethod
+    def parse_event(event_dict):
+        """Parse a Matrix event and create a higher level event object.
+
+        This function parses the type of the Matrix event and produces a
+        higher level CallEvent object representing the parsed event.
+
+        The event structure is checked for correctness and the event fields are
+        type checked. If this validation process fails for an event an BadEvent
+        will be produced.
+
+        If the type of the event is now known an UnknownEvent will be produced.
+
+        Args:
+            event_dict (dict): The raw matrix event dictionary.
+
+        """
+        if event_dict["type"] == "m.call.candidates":
+            event = ToDeviceCallCandidatesEvent.from_dict(event_dict)
+        elif event_dict["type"] == "m.call.invite":
+            event = ToDeviceCallInviteEvent.from_dict(event_dict)
+        elif event_dict["type"] == "m.call.answer":
+            event = ToDeviceCallAnswerEvent.from_dict(event_dict)
+        elif event_dict["type"] == "m.call.hangup":
+            event = ToDeviceCallHangupEvent.from_dict(event_dict)
+        else:
+            event = None
+
+        return event
+
+
+@dataclass
+class ToDeviceCallCandidatesEvent(CallEvent):
+    """Call event holding additional VoIP ICE candidates.
+
+    This event is sent by callers after sending an invite and by the callee
+    after answering. Its purpose is to give the other party additional ICE
+    candidates to try using to communicate.
+
+    Args:
+        candidates (list): A list of dictionaries describing the candidates.
+    """
+
+    candidates: List[Dict[str, Any]] = field()
+
+    @classmethod
+    @verify(Schemas.call_candidates)
+    def from_dict(cls, event_dict):
+        content = event_dict.get("content", {})
+        return cls(
+            event_dict,
+            content["call_id"],
+            content["party_id"],
+            content["version"],
+            content["candidates"],
+        )
+
+
+@dataclass
+class ToDeviceCallInviteEvent(CallEvent):
+    """Event representing an invitation to a VoIP call.
+
+    This event is sent by a caller when they wish to establish a call.
+
+    Attributes:
+        lifetime (integer): The time in milliseconds that the invite is valid
+            for.
+        offer (dict): The session description object. A dictionary containing
+            the keys "type" which must be "offer" for this event and "sdp"
+            which contains the SDP text of the session description.
+
+    """
+
+    lifetime: int = field()
+    offer: Dict[str, Any] = field()
+
+    @property
+    def expired(self):
+        """Property marking if the invite event expired."""
+        now = time.time()
+        return now - (self.server_timestamp / 1000) > (self.lifetime / 1000)
+
+    @classmethod
+    @verify(Schemas.call_invite)
+    def from_dict(cls, event_dict):
+        content = event_dict.get("content", {})
+        return cls(
+            event_dict,
+            content["call_id"],
+            content["party_id"],
+            content["version"],
+            content["lifetime"],
+            content["offer"],
+        )
+
+
+@dataclass
+class ToDeviceCallAnswerEvent(CallEvent):
+    """Event representing the answer to a VoIP call.
+
+    This event is sent by the callee when they wish to answer the call.
+
+    Attributes:
+        answer (dict): The session description object. A dictionary containing
+            the keys "type" which must be "answer" for this event and "sdp"
+            which contains the SDP text of the session description.
+
+    """
+
+    answer: Dict[str, Any] = field()
+
+    @classmethod
+    @verify(Schemas.call_answer)
+    def from_dict(cls, event_dict):
+        content = event_dict.get("content", {})
+        return cls(
+            event_dict,
+            content["call_id"],
+            content["party_id"],
+            content["version"],
+            content["answer"],
+        )
+
+
+@dataclass
+class ToDeviceCallHangupEvent(CallEvent):
+    """An event representing the end of a VoIP call.
+
+    Sent by either party to signal their termination of the call. This can be
+    sent either once the call has has been established or before to abort the
+    call.
+
+    """
+
+    @classmethod
+    @verify(Schemas.call_hangup)
+    def from_dict(cls, event_dict):
+        content = event_dict.get("content", {})
+        return cls(
+            event_dict,
+            content["call_id"],
+            content["party_id"],
+            content["version"],
         )
