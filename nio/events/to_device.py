@@ -579,6 +579,7 @@ class ToDeviceCallCandidatesEvent(ToDeviceCallEvent):
     """
 
     candidates: List[Dict[str, Any]] = field()
+    conf_id: str = field()
 
     @classmethod
     # @verify(Schemas.call_candidates)
@@ -591,6 +592,7 @@ class ToDeviceCallCandidatesEvent(ToDeviceCallEvent):
             content["party_id"],
             content["version"],
             content["candidates"],
+            content["conf_id"],
         )
 
 
@@ -611,6 +613,7 @@ class ToDeviceCallInviteEvent(ToDeviceCallEvent):
 
     lifetime: int = field()
     offer: Dict[str, Any] = field()
+    conf_id: str = field()
 
     @property
     def expired(self):
@@ -628,6 +631,7 @@ class ToDeviceCallInviteEvent(ToDeviceCallEvent):
             content["version"],
             content["lifetime"],
             content["offer"],
+            content["conf_id"],
         )
 
 
@@ -670,6 +674,8 @@ class ToDeviceCallHangupEvent(ToDeviceCallEvent):
 
     """
 
+    conf_id: str = field()
+
     @classmethod
     @verify(Schemas.call_hangup)
     def from_dict(cls, event_dict):
@@ -680,4 +686,5 @@ class ToDeviceCallHangupEvent(ToDeviceCallEvent):
             content["call_id"],
             content["party_id"],
             content["version"],
+            content["conf_id"],
         )
