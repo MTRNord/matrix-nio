@@ -169,6 +169,8 @@ class Event:
             return MSC3401CallEvent.from_dict(event_dict)
         elif event_dict["type"].startswith("m.call"):
             return CallEvent.parse_event(event_dict)
+        elif event_dict["type"].startswith("org.matrix.msc3401.call."):
+            return CallEvent.parse_event(event_dict)
 
         return UnknownEvent.from_dict(event_dict)
 
@@ -219,6 +221,7 @@ class Event:
             return RoomMessage.parse_decrypted_event(event_dict)
 
         return Event.parse_event(event_dict)
+
 
 @dataclass
 class MSC3401CallEvent(Event):
@@ -468,10 +471,27 @@ class CallEvent(Event):
             event = CallAnswerEvent.from_dict(event_dict)
         elif event_dict["type"] == "m.call.hangup":
             event = CallHangupEvent.from_dict(event_dict)
+        elif event_dict["type"] == "org.matrix.msc3401.call.member":
+            event = CallMemberEvent.from_dict(event_dict)
         else:
             event = UnknownEvent.from_dict(event_dict)
 
         return event
+
+
+@dataclass
+class CallMemberEvent(CallEvent):
+    calls: List[Dict[str, Any]] = field()
+
+    @classmethod
+    @verify(Schemas.call_candidates)
+    def from_dict(cls, event_dict):
+        content = event_dict.get("content", {})
+
+        return cls(
+            event_dict,
+            calls=content["m.calls"],
+        )
 
 
 @dataclass

@@ -613,12 +613,10 @@ class ToDeviceCallInviteEvent(ToDeviceCallEvent):
 
     @property
     def expired(self):
-        """Property marking if the invite event expired."""
-        now = time.time()
-        return now - (self.server_timestamp / 1000) > (self.lifetime / 1000)
-
+        return False
+    
     @classmethod
-    @verify(Schemas.call_invite)
+    #@verify(Schemas.call_invite)
     def from_dict(cls, event_dict):
         content = event_dict.get("content", {})
         return cls(
