@@ -484,7 +484,6 @@ class CallMemberEvent(CallEvent):
     calls: List[Dict[str, Any]] = field()
 
     @classmethod
-    @verify(Schemas.call_candidates)
     def from_dict(cls, event_dict):
         content = event_dict.get("content", {})
 
