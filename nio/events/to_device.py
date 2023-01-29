@@ -649,6 +649,7 @@ class ToDeviceCallAnswerEvent(ToDeviceCallEvent):
     """
 
     answer: Dict[str, Any] = field()
+    conf_id: str = field()
 
     @classmethod
     @verify(Schemas.call_answer)
@@ -661,6 +662,7 @@ class ToDeviceCallAnswerEvent(ToDeviceCallEvent):
             content["party_id"],
             content["version"],
             content["answer"],
+            content["conf_id"],
         )
 
 
