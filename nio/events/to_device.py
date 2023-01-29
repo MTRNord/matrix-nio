@@ -519,6 +519,7 @@ class ForwardedRoomKeyEvent(RoomKeyEvent):
             content["algorithm"],
         )
 
+
 @dataclass
 class ToDeviceCallEvent(ToDeviceEvent):
     """Base Class for Matrix call signalling events.
@@ -580,7 +581,7 @@ class ToDeviceCallCandidatesEvent(ToDeviceCallEvent):
     candidates: List[Dict[str, Any]] = field()
 
     @classmethod
-    @verify(Schemas.call_candidates)
+    # @verify(Schemas.call_candidates)
     def from_dict(cls, event_dict):
         content = event_dict.get("content", {})
         return cls(
@@ -614,9 +615,9 @@ class ToDeviceCallInviteEvent(ToDeviceCallEvent):
     @property
     def expired(self):
         return False
-    
+
     @classmethod
-    #@verify(Schemas.call_invite)
+    # @verify(Schemas.call_invite)
     def from_dict(cls, event_dict):
         content = event_dict.get("content", {})
         return cls(
