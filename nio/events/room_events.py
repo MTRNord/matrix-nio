@@ -167,9 +167,9 @@ class Event:
             return StickerEvent.from_dict(event_dict)
         elif event_dict["type"] == "org.matrix.msc3401.call":
             return MSC3401CallEvent.from_dict(event_dict)
+        elif event_dict["type"] == "org.matrix.msc3401.call.member":
+            return CallMemberEvent.from_dict(event_dict)
         elif event_dict["type"].startswith("m.call"):
-            return CallEvent.parse_event(event_dict)
-        elif event_dict["type"].startswith("org.matrix.msc3401.call."):
             return CallEvent.parse_event(event_dict)
 
         return UnknownEvent.from_dict(event_dict)
@@ -471,8 +471,6 @@ class CallEvent(Event):
             event = CallAnswerEvent.from_dict(event_dict)
         elif event_dict["type"] == "m.call.hangup":
             event = CallHangupEvent.from_dict(event_dict)
-        elif event_dict["type"] == "org.matrix.msc3401.call.member":
-            event = CallMemberEvent.from_dict(event_dict)
         else:
             event = UnknownEvent.from_dict(event_dict)
 
@@ -480,7 +478,7 @@ class CallEvent(Event):
 
 
 @dataclass
-class CallMemberEvent(CallEvent):
+class CallMemberEvent(Event):
     calls: List[Dict[str, Any]] = field()
 
     @classmethod
